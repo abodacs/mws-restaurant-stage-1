@@ -188,7 +188,7 @@ nav #breadcrumb [aria-current="page"] {
   max-width: 100%;
 }
 ]
-#restaurants-list li h2 {
+#restaurants-list li h1 {
   color: #f18200;
   font-family: Arial, sans-serif;
   font-size: 14pt;
@@ -214,7 +214,14 @@ nav #breadcrumb [aria-current="page"] {
   text-decoration: none;
   text-transform: uppercase;
 }
-
+#restaurants-list .restaurant-img {
+  background-color: #ccc;
+  margin: 0;
+  max-width: 100%;
+  min-height: 248px;
+  min-width: 100%;
+  border-top-left-radius: 5%;
+}
 #neighborhoods-select:focus,
 #cuisines-select:focus {
   border: 3px solid black;
@@ -483,6 +490,14 @@ nav #breadcrumb [aria-current="page"] {
   }
 }
 @media screen and (min-width: 901px) {
+  #restaurants-list li {
+    margin: 1%;
+    padding: 3%;
+    width: 25%;
+    display: inline-block;
+    vertical-align: top;
+  }
+
   #restaurant-container {
     padding: 140px 40px 30px;
   }
