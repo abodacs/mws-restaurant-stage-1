@@ -176,3 +176,42 @@ addMarkersToMap = (restaurants = self.restaurants) => {
     self.markers.push(marker);
   });
 }
+/*
+Register the service worker
+*/
+if ('serviceWorker' in navigator){
+  navigator.serviceWorker.register('../sw.js')
+      .then(registration => {
+        registration.update();
+        registration.onupdatefound = function() {
+          // updatefound is also fired the very first time the SW is installed,
+          // and there's no need to prompt for a reload at that point.
+          // So check here to see if the page is already controlled,
+          // i.e. whether there's an existing service worker.
+          if (navigator.serviceWorker.controller) {
+            // The updatefound event implies that registration.installing is set
+            let installingWorker = registration.installing;
+
+            installingWorker.onstatechange = function() {
+              switch (installingWorker.state) {
+                case 'installed':
+                  console.log('new service worker installed')
+                  break;
+
+                case 'redundant':
+                  throw new Error('The installing ' +
+                                  'service worker became redundant.');
+
+                default:
+                  // Ignore
+              }
+            };
+          }
+        };
+          console.log("[ServiceWorker] registration completed", registration.scope);
+  }).catch(err => {
+      console.log("[ServiceWorker] registration failed", err);
+  });
+} else {
+  console.log("[ServiceWorker]  is not supported in this browser");
+}
