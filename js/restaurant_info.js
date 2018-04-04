@@ -58,7 +58,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   const image = document.getElementById('restaurant-img');
   image.className = 'restaurant-img'
   image.src = DBHelper.imageUrlForRestaurant(restaurant);
-  image.alt = restaurant.name;
+  image.alt = 'Restaurant '+ restaurant.name;
   const cuisine = document.getElementById('restaurant-cuisine');
   cuisine.innerHTML = restaurant.cuisine_type;
 
@@ -95,7 +95,7 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
  */
 fillReviewsHTML = (reviews = self.restaurant.reviews) => {
   const container = document.getElementById('reviews-container');
-  const title = document.createElement('h2');
+  const title = document.createElement('h4');
   title.innerHTML = 'Reviews';
   container.appendChild(title);
 
@@ -164,4 +164,43 @@ getParameterByName = (name, url) => {
   if (!results[2])
     return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+/*
+Register the service worker
+*/
+if ('serviceWorker' in navigator){
+  navigator.serviceWorker.register('../sw.js')
+      .then(registration => {
+        registration.update();
+        registration.onupdatefound = function() {
+          // updatefound is also fired the very first time the SW is installed,
+          // and there's no need to prompt for a reload at that point.
+          // So check here to see if the page is already controlled,
+          // i.e. whether there's an existing service worker.
+          if (navigator.serviceWorker.controller) {
+            // The updatefound event implies that registration.installing is set
+            let installingWorker = registration.installing;
+
+            installingWorker.onstatechange = function() {
+              switch (installingWorker.state) {
+                case 'installed':
+                  console.log('new service worker installed')
+                  break;
+
+                case 'redundant':
+                  throw new Error('The installing ' +
+                                  'service worker became redundant.');
+
+                default:
+                  // Ignore
+              }
+            };
+          }
+        };
+          console.log("[ServiceWorker] registration completed", registration.scope);
+  }).catch(err => {
+      console.log("[ServiceWorker] registration failed", err);
+  });
+} else {
+  console.log("[ServiceWorker]  is not supported in this browser");
 }
