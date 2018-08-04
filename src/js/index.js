@@ -6,14 +6,14 @@ let markers = [];
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
  */
 document.addEventListener('DOMContentLoaded', () => {
-  initMap(); // added
   fetchNeighborhoods().then(neighborhoods => {
     fillNeighborhoodsHTML(neighborhoods);
   });
-
   fetchCuisines().then(cuisines =>{
     fillCuisinesHTML(cuisines);
   });
+  updateRestaurants();
+  initMap(); // added
 });
 const endpoint = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.jpg70?access_token={mapboxToken}';
 const attribution = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
@@ -23,7 +23,7 @@ const attribution = 'Map data &copy; <a href="https://www.openstreetmap.org/">Op
 * Initialize leaflet map, called from HTML.
 */
 const initMap = () => {
-  if(L === undefined) return;
+  //if(L === undefined) return;
   self.newMap = L.map('map', {
     center: [40.722216, -73.987501],
     zoom: 12,
@@ -31,7 +31,7 @@ const initMap = () => {
   });
   /*eslint no-undef: "error"*/
   L.tileLayer(endpoint, {mapboxToken:'pk.eyJ1IjoiYWJvZGEiLCJhIjoiY2prY3oxYnhoMzB2cDNrbWV0bmcydW5qdiJ9.LTC-ZvmDbMhyD5aEM9OO_Q',maxZoom: 18,attribution:attribution,id:'mapbox.streets'}).addTo(self.newMap);
-  updateRestaurants();
+
 };
 
 document.getElementById('neighborhoods-select').addEventListener('change', event => {
