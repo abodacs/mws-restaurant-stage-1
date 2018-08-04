@@ -5,7 +5,8 @@
   "main": "index.js",
   "dependencies": {
     "babel-eslint": "^8.2.6",
-    "eslint": "^5.2.0"
+    "eslint": "^4.19.1",
+    "eslint-plugin-react": "^7.9.1"
   },
   "devDependencies": {
     "@babel/core": "7.0.0-beta.54",
@@ -21,24 +22,35 @@
     "@babel/preset-env": "^7.0.0-beta.55",
     "babel-loader": "^8.0.0-beta.0",
     "clean-webpack-plugin": "^0.1.19",
+    "compression-webpack-plugin": "^1.1.11",
+    "copy-webpack-plugin": "^4.5.2",
+    "css-entry-webpack-plugin": "^1.0.0-beta.4",
     "css-loader": "^1.0.0",
     "eslint-config-airbnb": "^17.0.0",
     "eslint-loader": "^2.1.0",
     "eslint-plugin-import": "^2.13.0",
     "eslint-plugin-jsx-a11y": "^6.1.1",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
+    "file-loader": "^1.1.11",
+    "html-loader": "^0.5.5",
     "html-webpack-plugin": "^3.2.0",
+    "imagemin-webpack-plugin": "^2.2.0",
+    "localforage": "^1.7.2",
+    "mini-css-extract-plugin": "^0.4.1",
     "optimize-css-assets-webpack-plugin": "^5.0.0",
     "style-loader": "^0.21.0",
     "uglifyjs-webpack-plugin": "^1.2.7",
+    "url-loader": "^1.0.1",
     "webpack": "^4.16.3",
+    "webpack-bundle-analyzer": "^2.13.1",
     "webpack-cli": "^3.1.0",
     "webpack-dev-server": "^3.1.5",
     "webpack-merge": "^4.1.3"
   },
   "scripts": {
-    "start:dev": "webpack-dev-server --mode development --config config/webpack.base.config.js --open --hot --history-api-fallback",
-    "prestart:prod": "webpack --mode production --config config/webpack.prod.config.js --env.NODE_ENV=production --progress",
+    "watch": "./node_modules/.bin/webpack  --display-error-details --mode development --watch --config config/webpack.base.config.js --hot --history-api-fallback",
+    "start:dev": "webpack-dev-server --watch --mode development --config config/webpack.base.config.js --open --hot --history-api-fallback",
+    "prestart:prod": "webpack  --display-error-details -p --mode production --config config/webpack.prod.config.js --env.NODE_ENV=production --progress",
     "lint": "eslint src/** src/**/**; exit 0",
     "lint-fix": "eslint src/** src/**/** --fix; exit 0"
   },
