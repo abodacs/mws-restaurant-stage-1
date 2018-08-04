@@ -8,6 +8,7 @@ const CompressionPlugin = require('compression-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ImageminPlugin = require('imagemin-webpack-plugin').default;
+const webpack = require('webpack');
 const bundleCss = new ExtractTextWebpackPlugin('css/bundle.min.css');
 const dirs = {
   src: path.join(__dirname, '../src'),
@@ -38,10 +39,22 @@ module.exports = {
     style: glob.sync(`${dirs.src}/**/*.css`),
   },
   output: {
+    filename: 'js/[name].js',
     path: `${dirs.dest}`,
-    filename: 'js/[name].js'
   },
+  devtool: 'cheap-eval-source-map',
   devServer: {
+    compress: true,
+    headers: {
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'DENY'
+    },
+    open: true,
+    overlay: {
+      warnings: true,
+      errors: true
+    },
+    hot: true,
     port: 8000
   },
   module: {
@@ -52,7 +65,6 @@ module.exports = {
         use: {
           loader: 'html-loader?cacheDirectory',
           options: {
-            interpolate: true,
             minimize: true
           }
         }
@@ -67,14 +79,11 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        use: {
+        use: [{
           loader: 'babel-loader?cacheDirectory',
-        },
-      },
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: ['eslint-loader'],
+        },{
+          loader: 'eslint-loader',
+        }],
       }/*,
       {
         test: /\.s?[ac]ss$/,
@@ -110,23 +119,12 @@ module.exports = {
   },
   plugins: [
     /*new CleanWebpackPlugin( [
-      'dist'
+      'dist/*.*',
     ],{ root: path.resolve(__dirname , '..'), verbose: true,
       dry: false }),*/
-    new HtmlWebpackPlugin({
-      //chunks: ['index', 'home'],
-      template: `${dirs.src}/index.html`,
-      inject: false,
-      filename: `${dirs.dest}/index.html`
-    }),bundleCss,
-    new ImageminPlugin({
-      test: /\.(jpe?g|png|webp|ttf|eot|svg|gif)(\?v=[0-9]\.[0-9]\.[0-9])?$/i,
-      disable: process.env.NODE_ENV !== 'production'
-    }),
-    //new BundleAnalyzerPlugin(),
-    new MiniCssExtractPlugin({
-      filename: 'css/[name].css'
-    }),
+
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.NamedModulesPlugin(),
     new CopyWebpackPlugin([
       {
         root: path.resolve(__dirname , '..'),
@@ -137,6 +135,26 @@ module.exports = {
         from: path.resolve('./src' , 'sw.js'),
       }
     ]),
+    new HtmlWebpackPlugin({
+      //chunks: ['index', 'home'],
+      template: `${dirs.src}/index.html`,
+      inject: false,
+      filename: `${dirs.dest}/index.html`
+    }),
+    new HtmlWebpackPlugin({
+      //chunks: ['index', 'home'],
+      template: `${dirs.src}/restaurant.html`,
+      inject: false,
+      filename: `${dirs.dest}/restaurant.html`
+    }),bundleCss,
+    new ImageminPlugin({
+      test: /\.(jpe?g|png|webp|ttf|eot|svg|gif)(\?v=[0-9]\.[0-9]\.[0-9])?$/i,
+      disable: process.env.NODE_ENV !== 'production'
+    }),
+    //new BundleAnalyzerPlugin(),
+    new MiniCssExtractPlugin({
+      filename: 'css/[name].css'
+    }),
     new CompressionPlugin({
       test: /\.(js|css)/
     })
