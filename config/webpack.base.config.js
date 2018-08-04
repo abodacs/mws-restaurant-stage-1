@@ -47,7 +47,8 @@ module.exports = {
     compress: true,
     headers: {
       'X-Content-Type-Options': 'nosniff',
-      'X-Frame-Options': 'DENY'
+      'X-Frame-Options': 'DENY',
+      'Cache-Control':'public,max-age=31536000'
     },
     open: true,
     overlay: {
@@ -104,9 +105,49 @@ module.exports = {
             sourceMap: true
           }
         }]
-      }*/,
+      }*/,{
+        test: /\.(jpe?g|png)$/i,
+        loaders: [
+          'file-loader',
+          'webp-loader?{quality: 13}'
+        ]
+      },{
+        test: /\.(jpe?g|png|gif|svg)$/,
+        loader: 'image-webpack-loader',
+        options: {
+          mozjpeg: {
+            progressive: true,
+            quality: 65
+          },
+          optipng: {
+            enabled: true,
+          },
+          pngquant: {
+            quality: '65-90',
+            speed: 4
+          },
+          gifsicle: {
+            interlaced: false,
+          },
+          webp: {
+            quality: 75
+          }
+        },
+        // This will apply the loader before the other ones
+        enforce: 'pre',
+      },{
+        test: /\.svg$/,
+        loader: 'svg-url-loader',
+        options: {
+          // Inline files smaller than 10 kB (10240 bytes)
+          limit: 10 * 1024,
+          // Remove the quotes from the url
+          // (they’re unnecessary in most cases)
+          noquotes: true,
+        },
+      },
       {
-        test: /\.(jpe?g|png|webp|ttf|eot|svg|gif)(\?v=[0-9]\.[0-9]\.[0-9])?$/i,
+        test: /\.(jpe?g|png|webp|ttf|eot|gif)(\?v=[0-9]\.[0-9]\.[0-9])?$/i,
         use: [{
           loader: 'url-loader',
           options: {

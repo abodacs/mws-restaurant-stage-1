@@ -128,7 +128,7 @@ class DBHelper {
    * Restaurant image URL.
    */
   imageUrlForRestaurant(restaurant, type) {
-    return (type) ? (`/img/thumbs/${restaurant.id}-248.jpg`) : (`/img/${restaurant.id}.jpg`);
+    return (type) ? (`/img/thumbs/${restaurant.id}-248.jpg`) : (`/img/${restaurant.id}.webp`);
   }
 
   /**

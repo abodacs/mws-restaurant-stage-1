@@ -101,6 +101,7 @@ const updateRestaurants = () => {
   return dbHelper.fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood).then(result=> {
     resetRestaurants();
     fillRestaurantsHTML(result);
+    lazyLoadImages(); // Start the images lazy loader.
   });
 };
 
@@ -130,7 +131,56 @@ const fillRestaurantsHTML = (restaurants) => {
   });
   addMarkersToMap(restaurants);
 };
+/**
+ * lazy loading images.
+ */
+function lazyLoadImages() {
+  const images = document.querySelectorAll('.restaurant-img');
 
+  // If we don't have support for intersection observer, loads the images immediately
+  if (!('IntersectionObserver' in window)) {
+    images.forEach(image => image.replaceWith(createImageHTML(image)));
+    return;
+  }
+
+  // Function that will when the images are intersecting.
+  function onIntersection(entries) {
+    entries.forEach(entry => {
+      // If the image is not intersecting return.
+      if(!entry.isIntersecting) return;
+
+      // Stop observing this image.
+      observer.unobserve(entry.target);
+
+      // Replace the image with the new Picture element unless it has no photo.
+      if(typeof entry.target.dataset.src === 'undefined') return;
+      entry.target.replaceWith(createImageHTML(entry.target));
+    });
+  }
+
+  const observer = new IntersectionObserver(onIntersection, {
+    rootMargin: '50px 0px',
+    threshold: 0.01
+  });
+
+  images.forEach(image => {
+    observer.observe(image);
+  });
+}
+
+/*
+ * Create responsive image HTML.
+ */
+function createImageHTML(image) {
+  const sizes = '(max-width: 650px) calc(100vw - 70px), 230px';
+  const picture = document.createElement('picture');
+  picture.innerHTML = `<source srcset="${image.dataset.srcset.replace(/\.jpg /g, '.webp ')}" sizes="${sizes}" alt="${image.alt}">` +
+    `<source srcset="${image.dataset.srcset}" sizes="${sizes}" alt="${image.alt}">` +
+    `<img class="restaurant-img" src="${image.dataset.src}" alt="${image.alt}">`;
+
+  // Parse it before returning since this is expected to be an Element.
+  return picture;
+}
 /**
  * Create restaurant HTML.
  */
@@ -138,7 +188,7 @@ const createRestaurantHTML = (restaurant) => {
   const li = document.createElement('li');
   li.className = 'restaurants-list-item';
 
-  const image = document.createElement('img');
+  let image = document.createElement('img');
   image.className = 'restaurant-img';
   image.setAttribute('data-src', dbHelper.imageUrlForRestaurant(restaurant, 'thumb'));
   image.setAttribute('src', dbHelper.imageUrlForRestaurant(restaurant));
@@ -167,8 +217,33 @@ const createRestaurantHTML = (restaurant) => {
   more.setAttribute('role', 'button');
   more.setAttribute('aria-labelledby', 'restaurant_' + restaurant.id);
   li.append(more);
+  // Create responsive and accessible image element
+  image = createImagePlaceholderHTML(dbHelper.imageUrlForRestaurant(restaurant), restaurant.name);
+  return `<li class="restaurants-list-item">
+  <article>
+    ${image}
+    <h2 class="restaurant-name">${restaurant.name}</h2>
+    <div class="address-wrap">
+      <p class ="restaurant-neighborhood">${restaurant.neighborhood}</p>
+      <p class="restaurant-address">${restaurant.address}</p>
+    </div>
+    <a class='restaurant-details'
+    role = "button" href="${dbHelper.urlForRestaurant(restaurant)}">View Details</a>
+  </article>
+</li>`;
+};
+/*
+ * Create placeholder for images, the images will be lazy loaded with the info in the placeholder data-attributes.
+ */
+const createImagePlaceholderHTML = (imgUrl, alt) => {
+  // If imgUrl is undefided(restaurant has no image) return a "no-photo" placeholder.
+  if(imgUrl === '/img/undefined.jpg') return `<img class="restaurant-img" src="/style/no_photo.svg" alt="${alt}" aria-hidden="true">`;
 
-  return li;
+  const largeImage = imgUrl.replace('.', '_large.');
+  const mediumImage = imgUrl.replace('.', '_medium.');
+  const srcset = `${imgUrl} 800w, ${largeImage} 650w, ${mediumImage} 360w`;
+
+  return `<img class="restaurant-img" src="/style/loading_image.svg" alt="${alt}" data-src="${imgUrl}" data-srcset="${srcset}" aria-hidden="true">`;
 };
 
 /**

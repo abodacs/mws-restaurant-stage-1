@@ -1,9 +1,24 @@
-const cacheVersion = 'mws-restaurant-stage1-v9';
+const cacheVersion = 'mws-restaurant-stage1-v10';
 
 const cacheResources = async () => {
-  const urlsToCache = ['./',
+  const urlsToCache = [
+    '/',
     './index.html',
     './restaurant.html',
+    'js/index.js',
+    '/img/1.webp',
+    '/img/2.webp',
+    '/img/3.webp',
+    '/img/4.webp',
+    '/img/5.webp',
+    '/img/6.webp',
+    '/img/7.webp',
+    '/img/8.webp',
+    '/img/9.webp',
+    '/img/10.webp',
+    'img/logo.svg',
+    'css/bundle.min.css',
+    'dist/manifest.json',
     '//unpkg.com/leaflet@1.3.3/dist/leaflet.js',
     '//unpkg.com/leaflet@1.3.3/dist/leaflet.css',
     //'//normalize-css.googlecode.com/svn/trunk/normalize.css'

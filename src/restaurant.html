@@ -15,16 +15,34 @@
 <body class="inside">
   <!-- Beginning header -->
   <header>
-    <!-- Beginning nav -->
+   <!-- Beginning nav -->
     <nav aria-label="Navigation">
-      <h1><a href="/">Restaurant Reviews</a></h1>
+        <a href="/" aria-label="home link">
+            <h1>
+                <svg width="500px" height="80px">
+                    <use xlink:href="img/logo.svg#logo" height="64px" y="8px" />
+                    <text class="title" x="100px" y="72px">
+                        Restaurant Reviews
+                    </text>
+                </svg>
+            </h1>
+        </a>
     </nav>
     <!-- Beginning breadcrumb -->
+    <ul id="breadcrumb" class="breadcrumb"   aria-label="Breadcrumb" role="navigation">
+    <li><a href="/">Home</a></li>
+    </ul>
+    <!-- End breadcrumb -->
+    <!-- End nav -->
+    <!-- Beginning nav -->
+    <!--<nav aria-label="Navigation">
+      <h1><a href="/">Restaurant Reviews</a></h1>
+    </nav>
     <nav aria-label="Breadcrumb">
     <ul id="breadcrumb" class="breadcrumb"   aria-label="Breadcrumb" role="navigation">
       <li><a href="/">Home</a></li>
     </ul>
-    </nav>
+    </nav>-->
     <!-- End breadcrumb -->
     <!-- End nav -->
   </header>

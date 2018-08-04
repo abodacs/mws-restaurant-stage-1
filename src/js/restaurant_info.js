@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 window.initMap = () => {
   fetchRestaurantFromURL()
     .then(restaurant => {
+      fillBreadcrumb(restaurant);
       //if(L === undefined) return;
       self.newMap = L.map('map', {
         center:  [restaurant.latlng.lat, restaurant.latlng.lng],
@@ -23,7 +24,7 @@ window.initMap = () => {
       });
       /*eslint no-undef: "error"*/
       L.tileLayer(endpoint, {mapboxToken:'pk.eyJ1IjoiYWJvZGEiLCJhIjoiY2prY3oxYnhoMzB2cDNrbWV0bmcydW5qdiJ9.LTC-ZvmDbMhyD5aEM9OO_Q',maxZoom: 18,attribution:attribution,id:'mapbox.streets'}).addTo(self.newMap);
-      fillBreadcrumb(restaurant);
+
       dbHelper.mapMarkerForRestaurant(restaurant, self.newMap);
     }).catch(err => console.error(err));
 };
