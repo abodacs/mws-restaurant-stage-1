@@ -1,0 +1,23 @@
+{
+  "errors": [
+    "Entry module not found: Error: Can't resolve './src' in 'E:\\Google Drive\\MWDND\\mws-restaurant-stage-1'\nresolve './src' in 'E:\\Google Drive\\MWDND\\mws-restaurant-stage-1'\n  using description file: E:\\Google Drive\\MWDND\\mws-restaurant-stage-1\\package.json (relative path: .)\n    Field 'browser' doesn't contain a valid alias configuration\n    using description file: E:\\Google Drive\\MWDND\\mws-restaurant-stage-1\\package.json (relative path: ./src)\n      no extension\n        Field 'browser' doesn't contain a valid alias configuration\n        E:\\Google Drive\\MWDND\\mws-restaurant-stage-1\\src is not a file\n      .wasm\n        Field 'browser' doesn't contain a valid alias configuration\n        E:\\Google Drive\\MWDND\\mws-restaurant-stage-1\\src.wasm doesn't exist\n      .mjs\n        Field 'browser' doesn't contain a valid alias configuration\n        E:\\Google Drive\\MWDND\\mws-restaurant-stage-1\\src.mjs doesn't exist\n      .js\n        Field 'browser' doesn't contain a valid alias configuration\n        E:\\Google Drive\\MWDND\\mws-restaurant-stage-1\\src.js doesn't exist\n      .json\n        Field 'browser' doesn't contain a valid alias configuration\n        E:\\Google Drive\\MWDND\\mws-restaurant-stage-1\\src.json doesn't exist\n      as directory\n        existing directory\n          using path: E:\\Google Drive\\MWDND\\mws-restaurant-stage-1\\src\\index\n            using description file: E:\\Google Drive\\MWDND\\mws-restaurant-stage-1\\package.json (relative path: ./src/index)\n              no extension\n                Field 'browser' doesn't contain a valid alias configuration\n                E:\\Google Drive\\MWDND\\mws-restaurant-stage-1\\src\\index doesn't exist\n              .wasm\n                Field 'browser' doesn't contain a valid alias configuration\n                E:\\Google Drive\\MWDND\\mws-restaurant-stage-1\\src\\index.wasm doesn't exist\n              .mjs\n                Field 'browser' doesn't contain a valid alias configuration\n                E:\\Google Drive\\MWDND\\mws-restaurant-stage-1\\src\\index.mjs doesn't exist\n              .js\n                Field 'browser' doesn't contain a valid alias configuration\n                E:\\Google Drive\\MWDND\\mws-restaurant-stage-1\\src\\index.js doesn't exist\n              .json\n                Field 'browser' doesn't contain a valid alias configuration\n                E:\\Google Drive\\MWDND\\mws-restaurant-stage-1\\src\\index.json doesn't exist"
+  ],
+  "warnings": [
+    "configuration\nThe 'mode' option has not been set, webpack will fallback to 'production' for this value. Set 'mode' option to 'development' or 'production' to enable defaults for each environment.\nYou can also set it to 'none' to disable any default behavior. Learn more: https://webpack.js.org/concepts/mode/"
+  ],
+  "version": "4.16.3",
+  "hash": "ab0bdd6b9ebe52b880e0",
+  "time": 124,
+  "builtAt": 1533329584544,
+  "publicPath": "",
+  "outputPath": "E:\\Google Drive\\MWDND\\mws-restaurant-stage-1\\dist",
+  "assetsByChunkName": {},
+  "assets": [],
+  "filteredAssets": 0,
+  "entrypoints": {},
+  "namedChunkGroups": {},
+  "chunks": [],
+  "modules": [],
+  "filteredModules": 0,
+  "children": []
+}
