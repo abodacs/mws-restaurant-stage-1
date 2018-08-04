@@ -1,10 +1,12 @@
-const cacheVersion = 'mws-restaurant-stage1-v7';
+const cacheVersion = 'mws-restaurant-stage1-v9';
 
 const cacheResources = async () => {
   const urlsToCache = ['./',
     './index.html',
     './restaurant.html',
-    //'https://unpkg.com/leaflet@1.3.3/dist/leaflet.js'
+    '//unpkg.com/leaflet@1.3.3/dist/leaflet.js',
+    '//unpkg.com/leaflet@1.3.3/dist/leaflet.css',
+    //'//normalize-css.googlecode.com/svn/trunk/normalize.css'
   ];
   const cache = await caches.open(cacheVersion);
   return cache.addAll(urlsToCache);

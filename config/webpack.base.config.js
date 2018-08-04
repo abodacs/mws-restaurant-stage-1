@@ -118,13 +118,13 @@ module.exports = {
     ],
   },
   plugins: [
-    /*new CleanWebpackPlugin( [
+    new CleanWebpackPlugin( [
       'dist/*.*',
-    ],{ root: path.resolve(__dirname , '..'), verbose: true,
-      dry: false }),*/
-
+    ]),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NamedModulesPlugin(),
+    new webpack.optimize.OccurrenceOrderPlugin(),
+    new webpack.optimize.ModuleConcatenationPlugin(),
     new CopyWebpackPlugin([
       {
         root: path.resolve(__dirname , '..'),
@@ -133,6 +133,9 @@ module.exports = {
       }, {
         root: path.resolve(__dirname , '..'),
         from: path.resolve('./src' , 'sw.js'),
+      }, {
+        root: path.resolve(__dirname , '..'),
+        from: path.resolve('./src' , 'manifest.json'),
       }
     ]),
     new HtmlWebpackPlugin({

@@ -6,16 +6,18 @@ const endpoint = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.jpg70?access_
 const attribution = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
     '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
     'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
+document.addEventListener('DOMContentLoaded', () => {
+  window.initMap(); // added
+});
 /**
  * Initialize map, called from HTML.
  */
 window.initMap = () => {
-  fetchRestaurantFromURL((error, restaurant) => {
-    if (error) { // Got an error!
-      console.error(error);
-    } else {
+  fetchRestaurantFromURL()
+    .then(restaurant => {
+      //if(L === undefined) return;
       self.newMap = L.map('map', {
-        center: restaurant.latlng,
+        center:  [restaurant.latlng.lat, restaurant.latlng.lng],
         zoom: 16,
         scrollWheelZoom: false
       });
@@ -23,38 +25,34 @@ window.initMap = () => {
       L.tileLayer(endpoint, {mapboxToken:'pk.eyJ1IjoiYWJvZGEiLCJhIjoiY2prY3oxYnhoMzB2cDNrbWV0bmcydW5qdiJ9.LTC-ZvmDbMhyD5aEM9OO_Q',maxZoom: 18,attribution:attribution,id:'mapbox.streets'}).addTo(self.newMap);
       fillBreadcrumb(restaurant);
       dbHelper.mapMarkerForRestaurant(restaurant, self.newMap);
-    }
-  });
+    }).catch(err => console.error(err));
 };
 
 /**
  * Get current restaurant from page URL.
  */
-const fetchRestaurantFromURL = (callback,restaurant) => {
+const fetchRestaurantFromURL = (restaurant) => {
   if (restaurant) { // restaurant already fetched!
-    callback(null, restaurant);
-    return;
+    return Promise.resolve(restaurant);
   }
   const id = getParameterByName('id');
   if (!id) { // no id found in URL
     const error = 'No restaurant id in URL';
-    callback(error, null);
+    return Promise.reject(error);
   } else {
-    dbHelper.fetchRestaurantById(id, (error, restaurant) => {
-      if (!restaurant) {
-        console.error(error);
-        return;
-      }
-      fillRestaurantHTML();
-      callback(null, restaurant);
-    });
+    return dbHelper.fetchRestaurantById(id)
+      .then(restaurant => {
+        fillRestaurantHTML(restaurant);
+        return restaurant;
+      })
+      .catch(err => console.error(err));
   }
 };
 
 /**
  * Create restaurant HTML and add it to the webpage
  */
-const fillRestaurantHTML = (restaurant = self.restaurant) => {
+const fillRestaurantHTML = (restaurant) => {
   const name = document.getElementById('restaurant-name');
   name.innerHTML = restaurant.name;
 

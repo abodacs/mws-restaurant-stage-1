@@ -23,6 +23,7 @@ const attribution = 'Map data &copy; <a href="https://www.openstreetmap.org/">Op
 * Initialize leaflet map, called from HTML.
 */
 const initMap = () => {
+  if(L === undefined) return;
   self.newMap = L.map('map', {
     center: [40.722216, -73.987501],
     zoom: 12,
@@ -135,6 +136,7 @@ const fillRestaurantsHTML = (restaurants) => {
  */
 const createRestaurantHTML = (restaurant) => {
   const li = document.createElement('li');
+  li.className = 'restaurants-list-item';
 
   const image = document.createElement('img');
   image.className = 'restaurant-img';
@@ -144,18 +146,22 @@ const createRestaurantHTML = (restaurant) => {
   li.append(image);
 
   const name = document.createElement('h2');
+  name.className = 'restaurant-name';
   name.innerHTML = restaurant.name;
   li.append(name);
 
   const neighborhood = document.createElement('p');
+  neighborhood.className = 'restaurant-neighborhood';
   neighborhood.innerHTML = restaurant.neighborhood;
   li.append(neighborhood);
 
   const address = document.createElement('p');
+  address.className = 'restaurant-address';
   address.innerHTML = restaurant.address;
   li.append(address);
 
   const more = document.createElement('a');
+  more.className = 'restaurant-details';
   more.innerHTML = 'View Details';
   more.href = dbHelper.urlForRestaurant(restaurant);
   more.setAttribute('role', 'button');
