@@ -102,6 +102,7 @@ const updateRestaurants = () => {
     resetRestaurants();
     fillRestaurantsHTML(result);
     lazyLoadImages(); // Start the images lazy loader.
+
   });
 };
 
@@ -127,7 +128,7 @@ const clearMarkers = () => {
 const fillRestaurantsHTML = (restaurants) => {
   const ul = document.getElementById('restaurants-list');
   restaurants.forEach((restaurant) => {
-    ul.append(createRestaurantHTML(restaurant));
+    ul.innerHTML += createRestaurantHTML(restaurant);
   });
   addMarkersToMap(restaurants);
 };
@@ -135,6 +136,7 @@ const fillRestaurantsHTML = (restaurants) => {
  * lazy loading images.
  */
 function lazyLoadImages() {
+
   const images = document.querySelectorAll('.restaurant-img');
 
   // If we don't have support for intersection observer, loads the images immediately
@@ -185,40 +187,8 @@ function createImageHTML(image) {
  * Create restaurant HTML.
  */
 const createRestaurantHTML = (restaurant) => {
-  const li = document.createElement('li');
-  li.className = 'restaurants-list-item';
-
-  let image = document.createElement('img');
-  image.className = 'restaurant-img';
-  image.setAttribute('data-src', dbHelper.imageUrlForRestaurant(restaurant, 'thumb'));
-  image.setAttribute('src', dbHelper.imageUrlForRestaurant(restaurant));
-  image.alt = `Restaurant ${restaurant.name}`;
-  li.append(image);
-
-  const name = document.createElement('h2');
-  name.className = 'restaurant-name';
-  name.innerHTML = restaurant.name;
-  li.append(name);
-
-  const neighborhood = document.createElement('p');
-  neighborhood.className = 'restaurant-neighborhood';
-  neighborhood.innerHTML = restaurant.neighborhood;
-  li.append(neighborhood);
-
-  const address = document.createElement('p');
-  address.className = 'restaurant-address';
-  address.innerHTML = restaurant.address;
-  li.append(address);
-
-  const more = document.createElement('a');
-  more.className = 'restaurant-details';
-  more.innerHTML = 'View Details';
-  more.href = dbHelper.urlForRestaurant(restaurant);
-  more.setAttribute('role', 'button');
-  more.setAttribute('aria-labelledby', 'restaurant_' + restaurant.id);
-  li.append(more);
   // Create responsive and accessible image element
-  image = createImagePlaceholderHTML(dbHelper.imageUrlForRestaurant(restaurant), restaurant.name);
+  const image = createImagePlaceholderHTML(dbHelper.imageUrlForRestaurant(restaurant), restaurant.name);
   return `<li class="restaurants-list-item">
   <article>
     ${image}
@@ -237,13 +207,13 @@ const createRestaurantHTML = (restaurant) => {
  */
 const createImagePlaceholderHTML = (imgUrl, alt) => {
   // If imgUrl is undefided(restaurant has no image) return a "no-photo" placeholder.
-  if(imgUrl === '/img/undefined.jpg') return `<img class="restaurant-img" src="/style/no_photo.svg" alt="${alt}" aria-hidden="true">`;
+  if(imgUrl === '/img/undefined.jpg') return `<img class="restaurant-img" src="img/image_not_available.png" alt="${alt}" aria-hidden="true">`;
 
   const largeImage = imgUrl.replace('.', '_large.');
   const mediumImage = imgUrl.replace('.', '_medium.');
   const srcset = `${imgUrl} 800w, ${largeImage} 650w, ${mediumImage} 360w`;
 
-  return `<img class="restaurant-img" src="/style/loading_image.svg" alt="${alt}" data-src="${imgUrl}" data-srcset="${srcset}" aria-hidden="true">`;
+  return `<img class="restaurant-img" src="/img/loading_image.svg" alt="${alt}" data-src="${imgUrl}" data-srcset="${srcset}" aria-hidden="true">`;
 };
 
 /**

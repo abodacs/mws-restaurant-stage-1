@@ -135,15 +135,12 @@ class DBHelper {
    * Map marker for a restaurant.
    */
   mapMarkerForRestaurant(restaurant, map) {
-    const marker = L.marker([restaurant.latlng],
-      {title: restaurant.name}).addTo(map);
-    /*const marker = new google.maps.Marker({
-      position: restaurant.latlng,
-      title: restaurant.name,
-      url: this.urlForRestaurant(restaurant),
-      map,
-      animation: google.maps.Animation.DROP,
-    });*/
+    let marker = L.marker([restaurant.latlng.lat, restaurant.latlng.lng],
+      {title: restaurant.name,
+        bounceOnAdd: true,
+        bounceOnAddOptions: {duration: 500, height: 100},
+      }).addTo(map);
+    marker.bindPopup(`<a href="${this.urlForRestaurant(restaurant)}">${restaurant.name}</a>`);
     return marker;
   }
 }
