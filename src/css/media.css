@@ -5,8 +5,8 @@
   #restaurants-list {
     grid-template-columns: repeat(auto-fill, 280px);
   }
-  #restaurants-list li {
-    width: 200px;
+  #restaurants h2 {
+    font-size: 1rem;
   }
 }
 
@@ -23,6 +23,9 @@
     margin-bottom: 10px;
     text-align: center;
     text-align-last: center;
+  }
+  #restaurants h2 {
+    font-size: 1rem;
   }
 }
 
