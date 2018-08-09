@@ -34,7 +34,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   // Let the browser do its default thing
   // for non-GET requests.
-  console.log('fetch', event.request.url);
+  //console.log('fetch', event.request.url);
   if (event.request.method != 'GET') return;
   const url = new URL(event.request.url);
   let req = event.request;

@@ -57,7 +57,23 @@ class DBHelper {
       }
     });
   }
-
+  /**
+  * Update the favorite restaurant.
+  */
+  updateFavorite(restaurantId, isFav) {
+    let DBurl = this.dataBaseUrls().byId(restaurantId);
+    DBurl += '/?is_favorite=' + isFav;
+    return fetch(DBurl, {
+      method: 'PUT'
+    }).then(response =>{
+      //console.log('favorite changed');
+      if(response.ok) {
+        return response.json();
+      } else {
+        return [{}];
+      }
+    });
+  }
   /**
    * Fetch restaurants by a cuisine type with proper error handling.
    */

@@ -11,6 +11,9 @@ module.exports = {
           },
           cache: true,
           parallel: true,
+          output: {
+            comments: false
+          },
           sourceMap: true // set to true if you want JS source maps
         },
       }),

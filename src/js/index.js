@@ -19,6 +19,14 @@ const endpoint = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.jpg70?access_
 const attribution = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
     '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
     'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
+
+const  favoriteStar =`<svg width="25" height="23" aria-hidden="true" data-prefix="fas" data-icon="star" class="svg-inline--fa fa-star fa-w-18" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+<path fill="#de0000" d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z"></path>
+</svg>`;
+
+const SolidStar =`<svg width="25" height="23" aria-hidden="true" data-prefix="far" data-icon="star" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+<path fill="currentColor" d="M528.1 171.5L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6zM388.6 312.3l23.7 138.4L288 385.4l-124.3 65.3 23.7-138.4-100.6-98 139-20.2 62.2-126 62.2 126 139 20.2-100.6 98z"></path>
+</svg>`;
 /**
 * Initialize leaflet map, called from HTML.
 */
@@ -189,6 +197,7 @@ function createImageHTML(image) {
 const createRestaurantHTML = (restaurant) => {
   // Create responsive and accessible image element
   const image = createImagePlaceholderHTML(dbHelper.imageUrlForRestaurant(restaurant), restaurant.name);
+  const favButton = createFavoriteButtonHTML(restaurant);
   return `<li class="restaurants-list-item">
   <article>
     ${image}
@@ -196,12 +205,45 @@ const createRestaurantHTML = (restaurant) => {
     <div class="address-wrap">
       <p class ="restaurant-neighborhood">${restaurant.neighborhood}</p>
       <p class="restaurant-address">${restaurant.address}</p>
+      ${favButton}
     </div>
     <a class='restaurant-details'
     role = "button" href="${dbHelper.urlForRestaurant(restaurant)}">View Details</a>
   </article>
 </li>`;
 };
+/**
+ * Create Favorite Button HTML.
+ */
+const createFavoriteButtonHTML = (restaurant) => {
+  if (restaurant.is_favorite != null && typeof (restaurant.is_favorite) == 'string') {
+    restaurant.is_favorite = JSON.parse(restaurant.is_favorite);
+  }
+  let starSvg  = favoriteStar,ariaLabel = 'button to unmark favorite',clsName = 'red-heart';
+  if (!restaurant.is_favorite) {
+    starSvg  = SolidStar;
+    ariaLabel = 'button to mark favorite';
+    clsName = '';
+  }
+  return `<button id="${restaurant.id}" aria-label="${ariaLabel} ${restaurant.name}" aria-labelledby ="${restaurant.id}" onclick="toggleFavorite('${restaurant.id}')" class="restaurant-favorite ${clsName}">${starSvg}</button>`;
+};
+const toggleFavorite  = (restaurantId) => {
+  const restaurant = document.getElementById(restaurantId);
+  const is_favorite = restaurant.classList.contains('red-heart');
+  dbHelper.updateFavorite(restaurantId,!is_favorite);toggleBtnFavorite(restaurant,!is_favorite);
+  return false;
+};
+function toggleBtnFavorite(el, isFav) {
+  if (isFav) {
+    el.classList.add('red-heart');
+    el.innerHTML = favoriteStar;
+    el.setAttribute('aria-label', 'unmark favorite');
+  } else {
+    el.innerHTML =SolidStar;
+    el.classList.remove('red-heart');
+    el.setAttribute('aria-label', 'mark as favorite');
+  }
+}
 /*
  * Create placeholder for images, the images will be lazy loaded with the info in the placeholder data-attributes.
  */
@@ -230,3 +272,4 @@ const addMarkersToMap = (restaurants) => {
     markers.push(marker);
   });
 };
+window.toggleFavorite = toggleFavorite;
