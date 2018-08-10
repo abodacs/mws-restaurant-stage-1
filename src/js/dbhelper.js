@@ -23,7 +23,18 @@ class DBHelper {
       byId: (id) => `http://localhost:${this.port}/restaurants/${id}`
     };
   }
-
+  request(url, method = 'GET', headers={},body=null){
+    const options = {
+      method
+    };
+    if (headers) options.headers = headers;
+    if (body) options.body = JSON.stringify(body);
+    const response = fetch(url, options);
+    if (options && options.method) {
+      return response.json();
+    }
+    return response;
+  }
   /**
    * Fetch all restaurants.
    */
@@ -61,18 +72,17 @@ class DBHelper {
   * Update the favorite restaurant.
   */
   updateFavorite(restaurantId, isFav) {
+    let restaurant;
     let DBurl = this.dataBaseUrls().byId(restaurantId);
-    DBurl += '/?is_favorite=' + isFav;
-    return fetch(DBurl, {
-      method: 'PUT'
-    }).then(response =>{
-      //console.log('favorite changed');
-      if(response.ok) {
-        return response.json();
-      } else {
-        return [{}];
-      }
-    });
+    try{
+      restaurant = this.request(DBurl,'PUT');
+      DBurl += '/?is_favorite=' + isFav;
+      if (!restaurant) return; // CORS Prefetch OPTIONS skip
+    } catch (error)
+    {
+      console.error(error);
+    }
+    //fetchRestaurantById(restaurantId)
   }
   /**
    * Fetch restaurants by a cuisine type with proper error handling.
@@ -159,5 +169,25 @@ class DBHelper {
     marker.bindPopup(`<a href="${this.urlForRestaurant(restaurant)}">${restaurant.name}</a>`);
     return marker;
   }
+
 }
+window.addEventListener('online',(event)=>{
+  event.preventDefault();
+  displayToast(event.type);
+});
+window.addEventListener('offline',(event)=>{
+  event.preventDefault();
+  displayToast(event.type);
+});
+const  displayToast = (type) =>{
+  var message ='<span>Unable to connect. Retrying…</span>',isVisible ='none';
+  if(type==='online') {
+    isVisible ='none';
+  } else {
+    isVisible ='block';
+  }
+  var toast = document.querySelector('#toast');
+  toast.innerHTML = message;
+  toast.style.display =isVisible;
+};
 export default new DBHelper();

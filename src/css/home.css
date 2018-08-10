@@ -296,3 +296,12 @@ section {
   background-color: #ffa500;
   color: #fff;
 }
+#toast {
+  width: 100%;
+  bottom: 0px;
+  position: fixed;
+  display: none;
+  background-color: #565454;
+  opacity: 0.95;
+  color: white;
+}
