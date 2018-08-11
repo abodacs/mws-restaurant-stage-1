@@ -121,13 +121,13 @@ const resetRestaurants = () => {
   const ul = document.getElementById('restaurants-list');
   ul.innerHTML = '';
   // clear markers
-  clearMarkers();
+  clearMarkers(self.newMap);
 };
-const clearMarkers = () => {
-  for (let marker of markers) {
-    marker.setMap(null);
-  }
-
+const clearMarkers = (map) => {
+  if(!map) return;
+  markers.forEach(marker => {
+    map.removeLayer(marker);
+  });
   markers = [];
 };
 /**

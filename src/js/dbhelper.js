@@ -1,11 +1,68 @@
 /*global L*/
-import localForage from 'localforage';
+import idb from 'idb';
+const DATABASE = 'mwdb';
+const RESTAURANTS_STORE = 'mw_restaurants';
+const REVIEWS_STORE = 'mw_reviews';
 
-localForage.config({
-  name: 'mw-restaurants',
-  version: 1
-});
+const getStore = (storeName, mode) =>
+  (dbService) =>
+    dbService.then(function(db) {
+      let tx = db.transaction(storeName, mode);
+      let store = tx.objectStore(storeName);
+      return store;
+    });
 
+
+
+const idbKeyval = {
+  get(storeName,key) {
+    return DBHelper.dbPromise().then(db => {
+      return db.transaction(storeName)
+        .objectStore(storeName).index('by-id').get(key);
+    });
+  },
+  set(storeName,key,val) {
+    return DBHelper.dbPromise().then(db => {
+      const tx = db.transaction(storeName, 'readwrite');
+      tx.objectStore(storeName).put(val);
+      return tx.complete;
+    });
+  },
+  delete(storeName,key) {
+    return DBHelper.dbPromise().then(db => {
+      const tx = db.transaction(storeName, 'readwrite');
+      tx.objectStore(storeName).delete(key);
+      return tx.complete;
+    });
+  },
+  clear(storeName) {
+    return DBHelper.dbPromise().then(db => {
+      const tx = db.transaction(storeName, 'readwrite');
+      tx.objectStore(storeName).clear();
+      return tx.complete;
+    });
+  },
+  keys(storeName) {
+    return DBHelper.dbPromise().then(db => {
+      const tx = db.transaction(storeName);
+      const keys = [];
+      const store = tx.objectStore(storeName);
+      (store.iterateKeyCursor || store.iterateCursor).call(store, cursor => {
+        if (!cursor) return;
+        keys.push(cursor.key);
+        cursor.continue();
+      });
+
+      return tx.complete.then(() => keys);
+    });
+  },
+  getAll(storeName) {
+    return DBHelper.dbPromise().then(db => {
+      const storeIndex = db.transaction(storeName).objectStore(storeName).index('by-id');
+      return storeIndex.getAll();
+    }).then((data) => data);
+  }
+};
 /**
  * Common database helper functions.
  */
@@ -23,66 +80,98 @@ class DBHelper {
       byId: (id) => `http://localhost:${this.port}/restaurants/${id}`
     };
   }
-  request(url, method = 'GET', headers={},body=null){
-    const options = {
-      method
-    };
-    if (headers) options.headers = headers;
-    if (body) options.body = JSON.stringify(body);
-    const response = fetch(url, options);
-    if (options && options.method) {
-      return response.json();
-    }
-    return response;
+  static dbPromise() {
+    return idb.open(DATABASE, 1, function (upgradeDb) {
+      if (!upgradeDb.objectStoreNames.contains(RESTAURANTS_STORE)) {
+        var store = upgradeDb.createObjectStore(RESTAURANTS_STORE, {
+          keyPath: 'id'
+        });
+        store.createIndex('by-id', 'id');
+      }
+      if (!upgradeDb.objectStoreNames.contains(REVIEWS_STORE)) {
+        var reviews = upgradeDb.createObjectStore(REVIEWS_STORE, {
+          keyPath: 'id'
+        });
+        reviews.createIndex('by-id', 'id');
+      }
+    });
+  }
+  /**
+   * Create indexedDB and add the items from the server
+   */
+  static addIndexedDb(type, items) {
+    DBHelper.dbPromise().then(function(db) {
+      let tx = db.transaction(type, 'readwrite');
+      let store = tx.objectStore(type);
+      items.forEach((item) => store.put(item));
+      return tx.complete.then(() => Promise.resolve(items));
+    });
+
+  }
+  // Get stored object by Id.
+  static getStoredObjectById(dbService, storename, id)  {
+    const store = getStore(storename)(dbService);
+    return store.get(id);
   }
   /**
    * Fetch all restaurants.
    */
   fetchRestaurants() {
     let DBurl = this.dataBaseUrls().list;
-    return localForage.getItem('restaurants').then(value =>{
-      if(value != null){
-        return value;
+    return idbKeyval.getAll(RESTAURANTS_STORE).then(data => {
+      if(data != null && data && data.length > 0){
+        return data;
       }else{
-        return fetch(DBurl).then(response => {
-          return localForage.setItem('restaurants', response.json()).then(responseJSON => responseJSON);
+        return fetch(DBurl).then(function(response) {
+          return response.json();
+        }).then(data => {
+          /* eslint-disable no-console */
+          console.log(data);
+          /* eslint-enable no-console */
+          const restaurants = data;
+          DBHelper.addIndexedDb(RESTAURANTS_STORE, restaurants);
+          return restaurants;
         });
       }
-    });
+    }).then(responseJSON => responseJSON);
   }
 
   /**
    * Fetch a restaurant by its ID.
    */
   fetchRestaurantById(id) {
-    let DBurl = this.dataBaseUrls().byId(id);
-    return localForage.getItem('restaurants').then(restaurants =>{
-      if(restaurants == null){
-        return fetch(DBurl).then(response => response.json());
-      }
-      const restaurant = restaurants.find(e => e.id === parseInt(id));
+    return idbKeyval.get(RESTAURANTS_STORE,Number(id)).then(restaurant => {
       if(restaurant){
-        return restaurant;
-      }else{
-        return fetch(DBurl).then(response => response.json());
+        let DBurl = this.dataBaseUrls().byId(id);
+        restaurant = fetch(DBurl).then(response => response.json());
       }
+      return restaurant;
+
     });
   }
   /**
   * Update the favorite restaurant.
   */
   updateFavorite(restaurantId, isFav) {
-    let restaurant;
     let DBurl = this.dataBaseUrls().byId(restaurantId);
-    try{
-      restaurant = this.request(DBurl,'PUT');
-      DBurl += '/?is_favorite=' + isFav;
-      if (!restaurant) return; // CORS Prefetch OPTIONS skip
-    } catch (error)
-    {
-      console.error(error);
-    }
-    //fetchRestaurantById(restaurantId)
+    DBurl += '/?is_favorite=' + isFav;
+    fetch(DBurl,{ method : 'PUT'}).then(() => {
+      idbKeyval.get(RESTAURANTS_STORE,Number(restaurantId)).then(restaurant => {
+        if(restaurant){
+          restaurant.is_favorite = isFav;
+          idbKeyval.set(RESTAURANTS_STORE,Number(restaurantId),restaurant);
+        }
+      });
+    }).catch (() =>  {
+      idbKeyval.get(RESTAURANTS_STORE,Number(restaurantId)).then(restaurant => {
+        if(restaurant){
+          restaurant.synced = 0;
+          restaurant.is_favorite = isFav;
+          idbKeyval.set(RESTAURANTS_STORE,Number(restaurantId),restaurant);
+        }
+      });
+    });
+
   }
   /**
    * Fetch restaurants by a cuisine type with proper error handling.
