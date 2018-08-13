@@ -4,9 +4,19 @@
 
 #### _Three Stage Course Material Project - Restaurant Reviews_
 
-# Restaurant Reviews Stage 2
+# Restaurant Reviews Stage 3
 
 An offline-first, PWA, Restaurant Reviews app. Part of a Udacity Mobile Web Specialist Nanodegree program, 3-parts project.
+
+## App feature
+
+- **Full offline application** with restaurant informations, customer reviews and a review form.
+- **Background sycn** for retry posting data when user offline.
+- Lighthouse score over 90 for "Performance", "Progressive Web App" and "Accessibility".
+- Made with **responsive design** to ensure a good user experience for all devices.
+- All content-related images include an appropriate alternate text.
+- Elements on the page use the appropriate semantic elements according with **ARIA roles** best practices.
+- Design made with focus on **accessibility**.
 
 ## Getting Started
 
@@ -14,11 +24,11 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-- [GitHub - abodacs/mws-restaurant-stage-2-server](https://github.com/abodacs/mws-restaurant-stage-2)
+- [GitHub - abodacs/mws-restaurant-stage-3-server](https://github.com/abodacs/mws-restaurant-stage-3)
 
 ### Installing
 
-1.  Download the [server](https://github.com/abodacs/mws-restaurant-stage-2)
+1.  Download the [server](https://github.com/abodacs/mws-restaurant-stage-3)
 
 2.  Download this repo.
 
@@ -37,3 +47,8 @@ This repository uses [leafletjs](https://leafletjs.com/) with [Mapbox](https://w
 ### Note about ES6
 
 Most of the code in this project has been written to the ES6 JavaScript specification for compatibility with modern web browsers and future proofing JavaScript code. As much as possible, try to maintain use of ES6 in any additional JavaScript you write.
+
+## Resources used as inspiration
+
+Stage 3<br />
+https://github.com/jakearchibald/idb<br />

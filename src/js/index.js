@@ -144,9 +144,7 @@ const fillRestaurantsHTML = (restaurants) => {
  * lazy loading images.
  */
 function lazyLoadImages() {
-
   const images = document.querySelectorAll('.restaurant-img');
-
   // If we don't have support for intersection observer, loads the images immediately
   if (!('IntersectionObserver' in window)) {
     images.forEach(image => image.replaceWith(createImageHTML(image)));

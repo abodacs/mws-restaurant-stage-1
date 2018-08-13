@@ -40,7 +40,7 @@
   <!-- Beginning main -->
   <main id="maincontent">
     <!-- Beginning map -->
-    <section class="map-container" aria-label="Map Api" aria-hidden="true">
+    <section class="map-container" aria-label="map of restaurant location" aria-hidden="true">
       <div id="map" role="application" tabindex="-1"></div>
     </section>
     <!-- End map -->
@@ -61,7 +61,28 @@
     <section id="reviews-container" class="reviews-container"   aria-label="Reviews">
       <ul id="reviews-list"></ul>
     </section>
-    </div>
+  <section id="form-container">
+    <h2 id="form-name">Add Review</h2>
+    <form id="review-form">
+      <label for="review-author">Name:</label><br />
+      <input required="" id="review-author" name="name" minlength="3" autocomplete="name" aria-required="true" maxlength="100" type="text"/>
+      <div class="rating-container">
+        <p>Rating:</p>
+        <select aria-label="Rating select" aria-required="true" autocomplete="nope" id="rating_select" name="Rating">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+      </div>
+      <label for="review-comments">Comments:</label></br>
+      <textarea required="" id="review-comments"  maxlength="300" name="comments"  aria-required="true"></textarea><br/>
+      <div id="form-error" class="hidden"></div>
+      <input type="submit" value="Share" onclick="addReview()"><br/>
+    </form>
+  </section>
+  </div>
     <!-- End reviews -->
   </main>
   <!-- End main -->

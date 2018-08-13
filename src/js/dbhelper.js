@@ -11,20 +11,30 @@ const getStore = (storeName, mode) =>
       let store = tx.objectStore(storeName);
       return store;
     });
-
-
-
 const idbKeyval = {
-  get(storeName,key) {
+  get(storeName,key,indexBy ='by-id') {
     return DBHelper.dbPromise().then(db => {
       return db.transaction(storeName)
-        .objectStore(storeName).index('by-id').get(key);
+        .objectStore(storeName).index(indexBy).get(key);
+    });
+  },
+  getItems(storeName,key,indexBy ='by-id') {
+    return DBHelper.dbPromise().then(db => {
+      return db.transaction(storeName)
+        .objectStore(storeName).index(indexBy).getAll(key);
     });
   },
   set(storeName,key,val) {
     return DBHelper.dbPromise().then(db => {
       const tx = db.transaction(storeName, 'readwrite');
-      tx.objectStore(storeName).put(val);
+      const store = tx.objectStore(storeName);
+      if (Array.isArray(val)) {
+        val.forEach(function(item) {
+          store.put(item);
+        });
+      } else {
+        store.put(val);
+      }
       return tx.complete;
     });
   },
@@ -56,9 +66,9 @@ const idbKeyval = {
       return tx.complete.then(() => keys);
     });
   },
-  getAll(storeName) {
+  getAll(storeName ,indexBy ='by-id') {
     return DBHelper.dbPromise().then(db => {
-      const storeIndex = db.transaction(storeName).objectStore(storeName).index('by-id');
+      const storeIndex = db.transaction(storeName).objectStore(storeName).index(indexBy);
       return storeIndex.getAll();
     }).then((data) => data);
   }
@@ -67,17 +77,16 @@ const idbKeyval = {
  * Common database helper functions.
  */
 class DBHelper {
-  /**
-   * Database URL.
-   * Change this to restaurants.json file location on your server.
-   */
   constructor(port = 1337) {
     this.port = port;
   }
+
   dataBaseUrls() {
     return {
       list: `http://localhost:${this.port}/restaurants`,
-      byId: (id) => `http://localhost:${this.port}/restaurants/${id}`
+      byId: (id) => `http://localhost:${this.port}/restaurants/${id}`,
+      restaurantReviews: (id) => `http://localhost:${this.port}/reviews?restaurant_id=${id}`,
+      reviews: `http://localhost:${this.port}/reviews/`
     };
   }
   static dbPromise() {
@@ -87,12 +96,15 @@ class DBHelper {
           keyPath: 'id'
         });
         store.createIndex('by-id', 'id');
+        store.createIndex('synced', 'synced', {unique: false});
       }
       if (!upgradeDb.objectStoreNames.contains(REVIEWS_STORE)) {
         var reviews = upgradeDb.createObjectStore(REVIEWS_STORE, {
           keyPath: 'id'
         });
         reviews.createIndex('by-id', 'id');
+        reviews.createIndex('restaurants', 'restaurant_id', {unique: false});
+        reviews.createIndex('synced', 'synced', {unique: false});
       }
     });
   }
@@ -141,12 +153,11 @@ class DBHelper {
    */
   fetchRestaurantById(id) {
     return idbKeyval.get(RESTAURANTS_STORE,Number(id)).then(restaurant => {
-      if(restaurant){
+      if(!restaurant){
         let DBurl = this.dataBaseUrls().byId(id);
-        restaurant = fetch(DBurl).then(response => response.json());
+        return fetch(DBurl).then(response => response.json());
       }
       return restaurant;
-
     });
   }
   /**
@@ -184,11 +195,9 @@ class DBHelper {
    * Fetch restaurants by a neighborhood with proper error handling.
    */
   fetchRestaurantByNeighborhood(neighborhood) {
-
     // Fetch all restaurants
     return this.fetchRestaurants().then(restaurants => restaurants.filter(restaurant => restaurant.neighborhood === neighborhood));
   }
-
   /**
    * Fetch restaurants by a neighborhood with proper error handling.
    */
@@ -199,11 +208,9 @@ class DBHelper {
       if (cuisine !== 'all') { // filter by cuisine
         results = results.filter(r => r.cuisine_type === cuisine);
       }
-
       if (neighborhood !== 'all') { // filter by neighborhood
         results = results.filter(r => r.neighborhood === neighborhood);
       }
-
       return results;
     });
   }
@@ -231,19 +238,30 @@ class DBHelper {
       return cuisines.filter((v, i) => cuisines.indexOf(v) === i);
     });
   }
-
   /**
    * Restaurant page URL.
    */
   urlForRestaurant(restaurant) {
     return (`./restaurant.html?id=${restaurant.id}`);
   }
-
   /**
    * Restaurant image URL.
    */
   imageUrlForRestaurant(restaurant, type) {
     return (type) ? (`/img/thumbs/${restaurant.id}-248.jpg`) : (`/img/${restaurant.id}.webp`);
+  }
+  // Fetch reviews by Id.
+  fetchReviewsByRestId(restaurantId) {
+    let DBurl = this.dataBaseUrls().restaurantReviews(restaurantId);
+    return fetch(DBurl).then(response => response.json()).then(reviews => {
+      idbKeyval.set(REVIEWS_STORE,Number(restaurantId),reviews);
+      return Promise.resolve(reviews);
+    }).catch(() => {
+      return idbKeyval.getItems(REVIEWS_STORE,Number(restaurantId),'restaurants').then(reviews => {
+        //console.error(error);
+        return Promise.resolve(reviews);
+      });
+    });
   }
 
   /**
@@ -258,7 +276,66 @@ class DBHelper {
     marker.bindPopup(`<a href="${this.urlForRestaurant(restaurant)}">${restaurant.name}</a>`);
     return marker;
   }
+  static addOnlineReview(review){
+    let offlineObj = {
+      name: 'addReview',
+      data: review,
+      object_type: 'review',
+    };
 
+    if (!navigator.onLine && offlineObj.name === 'addReview') {
+      DBHelper.sendDataWhenOnline(offlineObj);
+      return;
+    }
+    let sendReview = {
+      'restaurant_id': parseInt(review.restaurant_id),
+      'name': review.name,
+      'createdAt': new Date(),
+      'updatedAt': new Date(),
+      'rating': parseInt(review.rating),
+      'comments': review.comments,
+    };
+    let fetch_option ={
+      method: 'POST',
+      body: JSON.stringify(sendReview),
+      headers: new Headers({
+        'Content-Type': 'application/json'
+      })
+    };
+    let DBurl = 'http://localhost:1337/reviews/';
+    fetch(DBurl, fetch_option ).then(response => {
+      if (response.headers.get('content-type').indexOf('application/json') > -1) {
+        return response.json();
+      }
+      else {
+        return 'API call succeeded';
+      }
+    }).then(data => {
+      return data;
+    }).catch(err => {
+      return `Error: ${err}` ;
+    });
+  }
+  /**
+   *
+   */
+  addReview(review) {
+    return DBHelper.addOnlineReview(review);
+  }
+
+  static sendDataWhenOnline(offlineObj) {
+    localStorage.setItem('data', JSON.stringify(offlineObj.data));
+    window.addEventListener('online', (event) => {
+      let data = JSON.parse(localStorage.getItem('data'));
+      if (data) {
+        if (offlineObj.name === 'addReview') {
+          DBHelper.addOnlineReview(offlineObj.data);
+        }
+        localStorage.removeItem('data');
+      }
+      event.preventDefault();
+    });
+  }
 }
 window.addEventListener('online',(event)=>{
   event.preventDefault();

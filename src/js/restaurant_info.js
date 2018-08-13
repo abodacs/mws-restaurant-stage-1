@@ -71,10 +71,10 @@ const fillRestaurantHTML = (restaurant) => {
   if (restaurant.operating_hours) {
     fillRestaurantHoursHTML(restaurant.operating_hours);
   }
-  // fill reviews
-  if (restaurant.reviews) {
-    fillReviewsHTML(restaurant.reviews);
-  }
+  // Fill reviews.
+  dbHelper.fetchReviewsByRestId(restaurant.id).then(reviews => {
+    fillReviewsHTML(reviews);
+  });
 };
 
 /**
@@ -113,6 +113,9 @@ const fillReviewsHTML = (reviews) => {
     return;
   }
   const ul = document.getElementById('reviews-list');
+  if (!Array.isArray(reviews)) {
+    reviews = [reviews];
+  }
   reviews.forEach((review) => {
     ul.appendChild(createReviewHTML(review));
   });
@@ -124,6 +127,14 @@ const fillReviewsHTML = (reviews) => {
  */
 const createReviewHTML = (review) => {
   const li = document.createElement('li');
+  if (!navigator.onLine) {
+    const connection_status = document.createElement('p');
+    connection_status.classList.add('offline_label');
+    connection_status.innerHTML = 'Offline';
+    li.classList.add('reviews_offline');
+    li.appendChild(connection_status);
+  }
+
   const name = document.createElement('p');
   name.className = 'reviewer';
   name.innerHTML = review.name;
@@ -131,7 +142,7 @@ const createReviewHTML = (review) => {
 
   const date = document.createElement('p');
   date.className = 'review-date';
-  date.innerHTML = review.date;
+  date.innerHTML = `Date: ${new Date(review.createdAt).toLocaleString()}`;
   li.appendChild(date);
 
   const rating = document.createElement('p');
@@ -145,6 +156,59 @@ const createReviewHTML = (review) => {
   li.appendChild(comments);
 
   return li;
+};
+  // Review form validation and submission.
+const addReview = () => {
+  event.preventDefault();
+  // Get the review data from the form.
+  let restaurantId = getParameterByName('id');
+  let name = document.getElementById('review-author').value;
+  let rating;
+  let comments = document.getElementById('review-comments').value;
+  rating = document.querySelector('#rating_select option:checked').value;
+  const review = [name, rating, comments, restaurantId];
+
+  if(checkEmptyFields(review)){
+    // Add the review data to the DOM.
+    const frontEndReview = {
+      restaurant_id: parseInt(review[3]),
+      rating: parseInt(review[1]),
+      name: review[0],
+      comments: review[2].substring(0, 300),
+      createdAt: new Date(),
+    };
+    // Send the review to the backend.
+    dbHelper.addReview(frontEndReview);
+    addReviewHTML(frontEndReview);
+    document.getElementById('review-form').reset();
+
+  }
+};
+const checkEmptyFields=(formInputs)=>{
+  let valid = true;
+  const  message_container= document.querySelector('#form-error');
+  message_container.innerHTML='';
+  if(formInputs[0] ==='' || (formInputs[1] <1 || formInputs[1] >5 || formInputs[1] ==='') || formInputs[2] ==='')
+  {
+
+    valid = false;
+    message_container.innerHTML='Please fill above empty field !';
+    message_container.setAttribute('role','alert');
+    message_container.setAttribute('aria-live','assertive');
+  }
+  message_container.classList.toggle('hidden' , valid );
+  return valid;
+};
+// Add the review to the UI.
+const addReviewHTML = (review) => {
+  if (document.getElementById('no-review')) {
+    document.getElementById('no-review').remove();
+  }
+  const container = document.getElementById('reviews-container');
+  const ul = document.getElementById('reviews-list');
+  // Insert the new review on the top.
+  ul.insertBefore(createReviewHTML(review), ul.firstChild);
+  container.appendChild(ul);
 };
 
 /**
@@ -169,3 +233,4 @@ const getParameterByName = (name, url) => {
   if (!results[2]) return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 };
+window.addReview = addReview;

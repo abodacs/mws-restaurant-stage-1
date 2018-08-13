@@ -218,7 +218,9 @@ select:focus {
 #restaurant-hours {
   padding: 0 8px;
 }
-
+.hidden {
+  display: none !important;
+}
 #restaurant-container,
 #reviews-container {
   box-sizing: border-box;
@@ -232,7 +234,14 @@ select:focus {
 #reviews-container h2 {
   margin: 0 0 8px;
 }
-
+.offline_label {
+  background-color: red;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+  text-align: center;
+  padding: 5px 0;
+}
 #reviews-container h2 {
   color: #005e8f;
   font-size: 14pt;
@@ -296,4 +305,52 @@ select:focus {
 }
 #restaurant-hours td {
   color: #666;
+}
+/* ====================== Add Review Form ====================== */
+#form-container {
+  box-sizing: border-box;
+  max-width: 100%;
+  max-height: 100%;
+  padding: 10px;
+  font-family: Arial;
+  font-size: 12pt;
+  grid-gap: 10px;
+}
+input[type="text"],
+#rating_select,
+textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  resize: vertical;
+  font-family: Arial;
+  font-size: 12pt;
+}
+label {
+  padding: 12px 12px 12px 0;
+  display: inline-block;
+  font-family: Arial;
+  font-size: 16px;
+}
+input[type="submit"] {
+  background-color: #252831;
+  color: white;
+  padding: 12px 20px;
+  margin: 10px;
+  border: none;
+  cursor: pointer;
+  float: right;
+  text-transform: uppercase;
+  font-family: Arial;
+  font-size: 15px;
+  letter-spacing: 1.5px;
+}
+
+#form-error {
+  background: #b26000;
+  font-weight: bold;
+  color: white;
+  margin: 0;
+  text-align: center;
+  padding: 5px 0;
 }
