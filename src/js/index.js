@@ -183,10 +183,8 @@ function createImageHTML(image) {
   const sizes = '(max-width: 650px) calc(100vw - 70px), 230px';
   const picture = document.createElement('picture');
   picture.innerHTML = `<source srcset="${image.dataset.srcset.replace(/\.jpg /g, '.webp ')}" sizes="${sizes}" alt="${image.alt}">` +
-    `<source srcset="${image.dataset.srcset}" sizes="${sizes}" alt="${image.alt}">` +
-    `<img class="restaurant-img" src="${image.dataset.src}" alt="${image.alt}">`;
-
-  // Parse it before returning since this is expected to be an Element.
+    `<source srcset="${image.dataset.srcset}" sizes="${sizes}" alt="An image of ${image.alt}">` +
+    `<img class="restaurant-img" src="${image.dataset.src}" alt="An image of ${image.alt}">`;
   return picture;
 }
 /**
