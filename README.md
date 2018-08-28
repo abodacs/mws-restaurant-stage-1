@@ -10,13 +10,13 @@ An offline-first, PWA, Restaurant Reviews app. Part of a Udacity Mobile Web Spec
 
 ## App feature
 
-- **Full offline application** with restaurant informations, customer reviews and a review form.
-- **Background sycn** for retry posting data when user offline.
+- **Full offline application** with restaurant information, customer reviews, and a review form.
+- **Background sync** for retry posting data when used offline.
 - Lighthouse score over 90 for "Performance", "Progressive Web App" and "Accessibility".
 - Made with **responsive design** to ensure a good user experience for all devices.
 - All content-related images include an appropriate alternate text.
-- Elements on the page use the appropriate semantic elements according with **ARIA roles** best practices.
-- Design made with focus on **accessibility**.
+- Elements on the page use the appropriate semantic elements according to **ARIA roles** best practices.
+- Design made with the focus on **accessibility**.
 
 ## Getting Started
 
